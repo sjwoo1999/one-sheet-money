@@ -1,10 +1,10 @@
 "use client";
 import { downloadCsv } from "../lib/csv";
 
-export function CsvExportButton({ filename="osm-weekly.csv", getRows }:{ filename?:string; getRows?:()=>string[][] }){
+export function CsvExportButton({ filename="osm-weekly.csv", rows }:{ filename?:string; rows?:string[][] }){
   function handle(){
-    const rows = getRows ? getRows() : [["category","total"],["식비","0"],["카페","0"],["배달","0"]];
-    downloadCsv(filename, rows);
+    const data = rows && rows.length ? rows : [["category","total"],["식비","0"],["카페","0"],["배달","0"]];
+    downloadCsv(filename, data);
   }
   return (
     <button

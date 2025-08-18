@@ -1,4 +1,4 @@
-
+"use client";
 import { CsvExportButton } from "../../components/CsvExportButton";
 import { SharePresetModal } from "../../components/SharePresetModal";
 import { OverspendBadge } from "../../components/OverspendBadge";
@@ -13,7 +13,7 @@ export default function WeeklyPage(){
       <header className="flex items-baseline justify-between">
         <h2 className="text-xl font-semibold">주간 리포트</h2>
         <div className="flex gap-3">
-          <CsvExportButton filename="osm-weekly.csv" getRows={() => [["category","total"], ...top.map(t=>[t.c, String(t.v)])]} />
+          <CsvExportButton filename="osm-weekly.csv" rows={[ ["category","total"], ...top.map(t=>[t.c, String(t.v)]) ]} />
           <SharePresetModal />
         </div>
       </header>
