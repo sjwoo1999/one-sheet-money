@@ -1,7 +1,7 @@
 # OneSheet Money
 지출 입력 5초, 주간 리포트 한 장. (apps/web=Next.js, apps/api=NestJS, Supabase)
 
-## 무엇이며, 어떻게 구성되었나요?
+## 무엇이며, 어떻게 구성되었나요? ([PRD](./docs/PRD.md))
 - 이 저장소는 모노레포입니다. 프론트엔드(Next.js)와 백엔드(NestJS), 공용 패키지들이 하나의 프로젝트에 함께 있습니다.
   - 프론트엔드: `apps/web`
   - 백엔드(API): `apps/api`
