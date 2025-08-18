@@ -20,9 +20,17 @@ export default function BudgetPage(){
         </div>
       </header>
       <div className="space-y-4">
-        {items.map(i=> (
-          <BudgetBar key={i.label} label={i.label} spent={i.spent} limit={i.limit} />
-        ))}
+        {items.length===0 ? (
+          <div className="space-y-3 animate-pulse">
+            <div className="h-6 bg-border rounded" />
+            <div className="h-6 bg-border rounded w-10/12" />
+            <div className="h-6 bg-border rounded w-8/12" />
+          </div>
+        ) : (
+          items.map(i=> (
+            <BudgetBar key={i.label} label={i.label} spent={i.spent} limit={i.limit} />
+          ))
+        )}
         <button className="w-full py-2 rounded-xl border border-border">+ 카테고리 추가</button>
       </div>
       <p className="text-sm text-muted">예산은 월별·카테고리별로 관리됩니다.</p>

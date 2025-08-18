@@ -1,25 +1,73 @@
 
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KRW } from "@osm/lib";
+import { track } from "../../lib/analytics";
+import { useRecentCategories } from "../../lib/recentCategories";
 
 export default function TodayPage() {
   const [sum, setSum] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [toastOpen, setToastOpen] = useState(false);
+  const lastAddedRef = useRef(0);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(()=>{
+    const t = setTimeout(()=>setLoading(false), 300);
+    return ()=> clearTimeout(t);
+  },[]);
+
+  function handleSaved(amount:number){
+    setSum(s=>s+amount);
+    lastAddedRef.current = amount;
+    setToastOpen(true);
+    track("expense_add_submit", { amount, ts: Date.now() });
+    if (timerRef.current) window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(()=> setToastOpen(false), 5000);
+  }
+
+  function undo(){
+    if (!toastOpen) return;
+    setSum(s=> s - lastAddedRef.current);
+    lastAddedRef.current = 0;
+    setToastOpen(false);
+    if (timerRef.current) window.clearTimeout(timerRef.current);
+  }
+
   return (
     <section className="space-y-4">
       <header className="flex items-baseline justify-between">
         <h2 className="text-xl font-semibold">오늘</h2>
         <div className="text-sm text-muted">오늘 합계 <b>{KRW(sum)}원</b></div>
       </header>
-      <button
-        className="w-full py-3 rounded-2xl shadow-1 bg-[var(--ll-action)] text-white"
-        aria-label="지출 추가"
-        onClick={()=>(document.getElementById("quick-add") as HTMLDialogElement | null)?.showModal()}>
-        + 지출 추가
-      </button>
+      {loading ? (
+        <div className="animate-pulse">
+          <div className="h-11 w-full rounded-2xl bg-border" />
+        </div>
+      ) : (
+        <button
+          className="w-full py-3 rounded-2xl shadow-1 bg-[var(--ll-action)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ll-action)] active:opacity-90"
+          aria-label="지출 추가"
+          onClick={()=>(document.getElementById("quick-add") as HTMLDialogElement | null)?.showModal()}>
+          + 지출 추가
+        </button>
+      )}
       <dialog id="quick-add" className="rounded-2xl p-0">
-        <QuickAddSheet onSaved={(a)=>{ setSum(s=>s+a); }} />
+        <QuickAddSheet onSaved={handleSaved} />
       </dialog>
+
+      {/* Toast */}
+      <div aria-live="polite" className="sr-only">{toastOpen ? "지출이 저장되었습니다" : ""}</div>
+      {toastOpen && (
+        <div className="fixed bottom-20 inset-x-0 flex justify-center z-30">
+          <div className="max-w-screen-sm mx-auto px-4 w-full">
+            <div className="rounded-xl border border-border bg-surface shadow-2 px-3 py-2 flex items-center justify-between">
+              <span className="text-sm">저장됨</span>
+              <button className="text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ll-action)]" onClick={undo}>되돌리기(5s)</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -29,8 +77,11 @@ function QuickAddSheet({ onSaved }:{ onSaved:(amount:number)=>void }) {
   const [category,setCategory]=useState("식비");
   const [noteOpen,setNoteOpen]=useState(false);
   const [note,setNote]=useState("");
-  const recent=["식비","카페","배달"];
+  const [loading, setLoading] = useState(true);
+  const recentStore = useRecentCategories();
+  const recent = recentStore.list(6).length ? recentStore.list(6) : ["식비","카페","배달"];
   const all=["식비","카페","배달","교통","장보기","쇼핑"];
+  useEffect(()=>{ const t = setTimeout(()=>setLoading(false), 300); return ()=> clearTimeout(t); },[]);
   function submit(){ onSaved(amount); }
   return (
     <form method="dialog" className="p-4 w-[22rem]" aria-label="지출 추가" aria-describedby="qa-desc">
@@ -43,20 +94,28 @@ function QuickAddSheet({ onSaved }:{ onSaved:(amount:number)=>void }) {
       <div className="mb-2">
         <div className="text-xs text-muted mb-1">최근</div>
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {recent.map(c=> (
-            <button key={c} type="button"
-              className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
-              onClick={()=>setCategory(c)}>{c}</button>
+          {(loading ? Array.from({length:3}).map((_,i)=>(
+            <div key={i} className="h-8 w-14 rounded-full bg-border animate-pulse" />
+          )) : recent).map((c:any, idx:number)=> (
+            typeof c === "string" ? (
+              <button key={c+idx} type="button"
+                className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
+                onClick={()=>{ setCategory(c); recentStore.add(c); }}>{c}</button>
+            ) : c
           ))}
         </div>
       </div>
       <div className="mb-3">
         <div className="text-xs text-muted mb-1">전체</div>
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {all.map(c=> (
-            <button key={c} type="button"
-              className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
-              onClick={()=>setCategory(c)}>{c}</button>
+          {(loading ? Array.from({length:6}).map((_,i)=>(
+            <div key={i} className="h-8 w-16 rounded-full bg-border animate-pulse" />
+          )) : all).map((c:any, idx:number)=> (
+            typeof c === "string" ? (
+              <button key={c+idx} type="button"
+                className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
+                onClick={()=>setCategory(c)}>{c}</button>
+            ) : c
           ))}
         </div>
       </div>

@@ -6,3 +6,8 @@
 
 :root { color-scheme: light dark; }
 body { background: var(--ll-surface); color: var(--ll-text); }
+
+/* Dialog backdrop using tokens */
+dialog::backdrop {
+  background: color-mix(in oklab, var(--ll-surface) 80%, black 20%);
+}
