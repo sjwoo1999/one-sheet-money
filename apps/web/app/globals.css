@@ -1,0 +1,8 @@
+
+@import "./styles/tokens.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light dark; }
+body { background: var(--ll-surface); color: var(--ll-text); }
