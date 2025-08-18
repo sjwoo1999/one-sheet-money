@@ -7,12 +7,13 @@ import { Card } from "../../components/Card";
 
 export default function WeeklyPage(){
   const exceededBy = 0; // TODO: bind real data
+  const top = [{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}];
   return (
     <section className="space-y-4">
       <header className="flex items-baseline justify-between">
         <h2 className="text-xl font-semibold">주간 리포트</h2>
         <div className="flex gap-3">
-          <CsvExportButton />
+          <CsvExportButton filename="osm-weekly.csv" getRows={() => [["category","total"], ...top.map(t=>[t.c, String(t.v)])]} />
           <SharePresetModal />
         </div>
       </header>

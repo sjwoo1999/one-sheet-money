@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { KRW } from "@osm/lib";
 import { track } from "../../lib/analytics";
 import { useRecentCategories } from "../../lib/recentCategories";
+import { Button } from "../../components/Button";
+import { openDialog } from "../../lib/dialog";
+import { Toast } from "../../components/Toast";
+import { Skeleton } from "../../components/Skeleton";
 
 export default function TodayPage() {
   const [sum, setSum] = useState(0);
@@ -37,20 +41,18 @@ export default function TodayPage() {
   return (
     <section className="space-y-4">
       <header className="flex items-baseline justify-between">
-        <h2 className="text-xl font-semibold">오늘</h2>
+        <h2 className="font-semibold" style={{ fontSize: "var(--ll-fs-xl)" }}>오늘</h2>
         <div className="text-sm text-muted">오늘 합계 <b>{KRW(sum)}원</b></div>
       </header>
       {loading ? (
-        <div className="animate-pulse">
-          <div className="h-11 w-full rounded-2xl bg-border" />
-        </div>
+        <Skeleton className="h-11 w-full rounded-2xl" />
       ) : (
-        <button
-          className="w-full py-3 rounded-2xl shadow-1 bg-[var(--ll-action)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ll-action)] active:opacity-90"
+        <Button
+          fullWidth
           aria-label="지출 추가"
-          onClick={()=>(document.getElementById("quick-add") as HTMLDialogElement | null)?.showModal()}>
+          onClick={(e)=> openDialog("quick-add", e.currentTarget as HTMLElement)}>
           + 지출 추가
-        </button>
+        </Button>
       )}
       <dialog id="quick-add" className="rounded-2xl p-0">
         <QuickAddSheet onSaved={handleSaved} />
@@ -59,14 +61,9 @@ export default function TodayPage() {
       {/* Toast */}
       <div aria-live="polite" className="sr-only">{toastOpen ? "지출이 저장되었습니다" : ""}</div>
       {toastOpen && (
-        <div className="fixed bottom-20 inset-x-0 flex justify-center z-30">
-          <div className="max-w-screen-sm mx-auto px-4 w-full">
-            <div className="rounded-xl border border-border bg-surface shadow-2 px-3 py-2 flex items-center justify-between">
-              <span className="text-sm">저장됨</span>
-              <button className="text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ll-action)]" onClick={undo}>되돌리기(5s)</button>
-            </div>
-          </div>
-        </div>
+        <Toast action={<button className="text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ll-action)]" onClick={undo}>되돌리기(5s)</button>}>
+          저장됨
+        </Toast>
       )}
     </section>
   );

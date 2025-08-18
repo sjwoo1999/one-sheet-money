@@ -1,10 +1,15 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 
 export function SharePresetModal(){
   const dlgRef = useRef<HTMLDialogElement>(null);
+  const [preset, setPreset] = useState<string | null>(null);
+  const [hideAmount, setHideAmount] = useState(false);
+  const [anonCats, setAnonCats] = useState(false);
   const open = ()=> dlgRef.current?.showModal();
   const close = ()=> dlgRef.current?.close();
+  function confirm(){ close(); }
+  const presets = ["정사각","세로","링크"] as const;
   return (
     <>
       <button onClick={open} className="text-sm underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ll-action)]">공유</button>
@@ -13,16 +18,18 @@ export function SharePresetModal(){
           <h3 className="text-lg font-semibold mb-1">공유 프리셋</h3>
           <p id="share-desc" className="text-xs text-muted mb-3">형식을 선택하고 옵션을 조정하세요.</p>
           <div className="grid grid-cols-3 gap-2 mb-3">
-            {[("정사각"),("세로"),("링크")].map(p=> (
-              <button key={p} type="button" className="border border-border rounded-xl px-2 py-6 text-sm">{p}</button>
+            {presets.map(p=> (
+              <button key={p} type="button"
+                className={`border border-border rounded-xl px-2 py-6 text-sm ${preset===p? 'bg-[var(--ll-action)] text-white':''}`}
+                onClick={()=>setPreset(p)}>{p}</button>
             ))}
           </div>
           <div className="space-y-2 mb-14 text-sm">
-            <label className="flex items-center gap-2"><input type="checkbox" /> 금액 숨김</label>
-            <label className="flex items-center gap-2"><input type="checkbox" /> 카테고리 익명</label>
+            <label className="flex items-center gap-2"><input type="checkbox" checked={hideAmount} onChange={e=>setHideAmount(e.currentTarget.checked)} /> 금액 숨김</label>
+            <label className="flex items-center gap-2"><input type="checkbox" checked={anonCats} onChange={e=>setAnonCats(e.currentTarget.checked)} /> 카테고리 익명</label>
           </div>
           <div className="fixed bottom-4 inset-x-0 flex justify-center pointer-events-none">
-            <button className="pointer-events-auto w-[22rem] py-3 rounded-2xl shadow-2 bg-[var(--ll-action)] text-white">공유 링크 생성</button>
+            <button disabled={!preset} className="pointer-events-auto w-[22rem] py-3 rounded-2xl shadow-2 bg-[var(--ll-action)] text-white disabled:opacity-50" onClick={confirm}>공유 링크 생성</button>
           </div>
         </form>
       </dialog>
