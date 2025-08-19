@@ -42,7 +42,7 @@ export default function TodayPage() {
     <section className="space-y-4">
       <header className="flex items-baseline justify-between">
         <h2 className="font-semibold" style={{ fontSize: "var(--ll-fs-xl)" }}>오늘</h2>
-        <div className="text-sm text-muted">오늘 합계 <b>{KRW(sum)}원</b></div>
+        <div className="text-sm text-muted" aria-live="polite">오늘 합계 <b>{KRW(sum)}원</b></div>
       </header>
       {loading ? (
         <Skeleton className="h-11 w-full rounded-2xl" />

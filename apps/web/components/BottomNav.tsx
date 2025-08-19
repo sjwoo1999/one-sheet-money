@@ -14,7 +14,7 @@ export function BottomNav(){
   ];
   return (
     <nav aria-label="하단 내비게이션"
-      className="fixed bottom-0 inset-x-0 z-20 border-t border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
+      className="fixed bottom-0 inset-x-0 z-20 border-t border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80 shadow-1">
       <ul className="mx-auto max-w-screen-sm grid grid-cols-4 px-2 py-2">
         {items.map(it=> {
           const active = pathname?.startsWith(it.href);
