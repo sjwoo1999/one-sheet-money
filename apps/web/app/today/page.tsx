@@ -92,19 +92,23 @@ function QuickAddSheet({ onSaved }:{ onSaved:(amount:number)=>void }) {
       <div className="mb-2">
       <div className="text-xs text-muted mb-1">최근</div>
       <CategoryChips
-  items={loading ? [] : (recent as string[])}
+  items={(recent as string[])}
   selected={category}
   onSelect={(v)=>{ setCategory(v); recentStore.add(v); }}
   ariaLabel="최근 카테고리"
+  loading={loading}
+  skeletonCount={3}
 />
 </div>
       <div className="mb-3">
       <div className="text-xs text-muted mb-1">전체</div>
       <CategoryChips
-  items={loading ? [] : (all as string[])}
+  items={(all as string[])}
   selected={category}
   onSelect={setCategory}
   ariaLabel="전체 카테고리"
+  loading={loading}
+  skeletonCount={6}
 />
 </div>
       <div className="mb-14">
