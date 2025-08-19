@@ -1,6 +1,7 @@
 "use client";
 import { CsvExportButton } from "../../components/CsvExportButton";
-import { SharePresetModal } from "../../components/SharePresetModal";
+import dynamic from "next/dynamic";
+const SharePresetModal = dynamic(() => import("../../components/SharePresetModal").then(m => m.SharePresetModal), { ssr: false });
 import { OverspendBadge } from "../../components/OverspendBadge";
 import Link from "next/link";
 import { Card } from "../../components/Card";

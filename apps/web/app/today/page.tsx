@@ -89,33 +89,35 @@ function QuickAddSheet({ onSaved }:{ onSaved:(amount:number)=>void }) {
         placeholder="금액(원)"
         onChange={(e)=>setAmount(Number((e.target.value as string).replaceAll(/[^0-9]/g,'')))} />
       <div className="mb-2">
-        <div className="text-xs text-muted mb-1">최근</div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {(loading ? Array.from({length:3}).map((_,i)=>(
-            <div key={i} className="h-8 w-14 rounded-full bg-border animate-pulse" />
-          )) : recent).map((c:any, idx:number)=> (
-            typeof c === "string" ? (
-              <button key={c+idx} type="button"
-                className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
-                onClick={()=>{ setCategory(c); recentStore.add(c); }}>{c}</button>
-            ) : c
-          ))}
-        </div>
-      </div>
+      <div className="text-xs text-muted mb-1">최근</div>
+      <div className="flex gap-2 overflow-x-auto pb-1" role="listbox" aria-label="최근 카테고리" aria-orientation="horizontal">
+      {(loading ? Array.from({length:3}).map((_,i)=>(
+      <div key={i} className="h-8 w-14 rounded-full bg-border animate-pulse" />
+      )) : recent).map((c:any, idx:number)=> (
+      typeof c === "string" ? (
+      <button key={c+idx} type="button"
+      role="option" aria-selected={category===c}
+      className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
+          onClick={()=>{ setCategory(c); recentStore.add(c); }}>{c}</button>
+        ) : c
+        ))}
+  </div>
+</div>
       <div className="mb-3">
-        <div className="text-xs text-muted mb-1">전체</div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {(loading ? Array.from({length:6}).map((_,i)=>(
-            <div key={i} className="h-8 w-16 rounded-full bg-border animate-pulse" />
-          )) : all).map((c:any, idx:number)=> (
-            typeof c === "string" ? (
-              <button key={c+idx} type="button"
-                className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
-                onClick={()=>setCategory(c)}>{c}</button>
-            ) : c
-          ))}
-        </div>
-      </div>
+      <div className="text-xs text-muted mb-1">전체</div>
+      <div className="flex gap-2 overflow-x-auto pb-1" role="listbox" aria-label="전체 카테고리" aria-orientation="horizontal">
+      {(loading ? Array.from({length:6}).map((_,i)=>(
+      <div key={i} className="h-8 w-16 rounded-full bg-border animate-pulse" />
+      )) : all).map((c:any, idx:number)=> (
+      typeof c === "string" ? (
+      <button key={c+idx} type="button"
+      role="option" aria-selected={category===c}
+      className={`px-3 py-1.5 rounded-full border whitespace-nowrap ${category===c?'bg-[var(--ll-action)] text-white':'border-border'}`}
+          onClick={()=>setCategory(c)}>{c}</button>
+        ) : c
+        ))}
+  </div>
+</div>
       <div className="mb-14">
         {!noteOpen && (
           <button type="button" className="text-sm underline" onClick={()=>setNoteOpen(true)}>+ 메모</button>
