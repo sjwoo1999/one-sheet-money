@@ -12,6 +12,7 @@ import { WeekPicker } from "../../components/WeekPicker";
 import { formatRangeKOR } from "../../lib/week";
 import { useState } from "react";
 import { PrintButton } from "../../components/PrintButton";
+import { OneSheetWeekly } from "../../components/OneSheetWeekly";
 
 export default function WeeklyPage(){
   const [anchorDate, setAnchorDate] = useState<Date>(new Date());
@@ -81,6 +82,17 @@ export default function WeeklyPage(){
           <InsightCard title="예산 위험도" value="낮음" caption="임계치 80% 이하" tone="positive" />
         </div>
       </Card>
+
+      {/* Print-only OneSheet layout */}
+      <div className="print-only">
+        <OneSheetWeekly
+          rangeLabel={formatRangeKOR(anchorDate)}
+          totalKRW={"₩ 0"}
+          deltaPercent={0}
+          top={top}
+          advice="오늘부터 5초 기록을 시작해요."
+        />
+      </div>
     </section>
   );
 }
