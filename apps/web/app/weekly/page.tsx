@@ -5,6 +5,8 @@ const SharePresetModal = dynamic(() => import("../../components/SharePresetModal
 import { OverspendBadge } from "../../components/OverspendBadge";
 import Link from "next/link";
 import { Card } from "../../components/Card";
+import { KpiCard } from "../../components/KpiCard";
+import { Sparkline } from "../../components/Sparkline";
 
 export default function WeeklyPage(){
   const exceededBy = 0; // TODO: bind real data
@@ -37,6 +39,15 @@ export default function WeeklyPage(){
           </div>
         </div>
         <hr className="my-4 border-border" />
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <KpiCard label="합계" value="₩ 0" delta={0} />
+          <KpiCard label="카테고리 수" value={3} />
+          <KpiCard label="평균/일" value="₩ 0" />
+        </div>
+        <div className="mb-4">
+          <div className="text-sm text-muted mb-1">추이</div>
+          <Sparkline data={[0, 2, 1, 3, 2, 4, 1]} width={240} height={36} />
+        </div>
         <div className="text-sm text-muted mb-2">TOP 3</div>
         <div className="space-y-2">
           {[{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}].length===0 ? (
