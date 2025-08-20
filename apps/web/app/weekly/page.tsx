@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Card } from "../../components/Card";
 import { KpiCard } from "../../components/KpiCard";
 import { Sparkline } from "../../components/Sparkline";
+import { InsightCard } from "../../components/InsightCard";
 
 export default function WeeklyPage(){
   const exceededBy = 0; // TODO: bind real data
@@ -57,17 +58,28 @@ export default function WeeklyPage(){
               <div className="h-3 w-8/12 bg-border rounded" />
             </div>
           ) : (
-            [{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}].map(({c,v})=> (
+            (()=>{
+              const max = Math.max(1, ...top.map(t=>t.v));
+              return top.map(({c,v})=> (
               <div key={c} className="text-sm">
                 <div className="flex items-center justify-between">
                   <span>{c}</span><span className="text-muted">₩{v}</span>
                 </div>
-                <div className="h-2 rounded-full bg-[var(--ll-border)]"><div className="h-2 bg-[var(--ll-action)]" style={{width:"4%"}}/></div>
+                <div className="h-2 rounded-full bg-[var(--ll-border)]"><div className="h-2 bg-[var(--ll-action)]" style={{width:`${Math.max(4, (v/max)*100)}%`}}/></div>
               </div>
-            ))
+              ));
+            })()
           )}
         </div>
         <div className="mt-4 text-sm">제안: 오늘부터 5초 기록을 시작해요.</div>
+      </Card>
+
+      <Card className="p-4">
+        <div className="text-sm text-muted mb-2">분석</div>
+        <div className="grid grid-cols-2 gap-2">
+          <InsightCard title="지출 급증 카테고리" value="식비" caption="전주 대비 +12%" tone="warning" />
+          <InsightCard title="예산 위험도" value="낮음" caption="임계치 80% 이하" tone="positive" />
+        </div>
       </Card>
     </section>
   );
