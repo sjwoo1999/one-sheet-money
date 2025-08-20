@@ -11,3 +11,11 @@ body { background: var(--ll-surface); color: var(--ll-text); }
 dialog::backdrop {
   background: color-mix(in oklab, var(--ll-surface) 80%, black 20%);
 }
+
+/* Print styles for OneSheet */
+@media print {
+  nav, footer, .bottom-nav, .no-print { display: none !important; }
+  body { background: white; color: black; }
+  main { padding: 0 !important; }
+  article { box-shadow: none !important; border-color: #000 !important; }
+}

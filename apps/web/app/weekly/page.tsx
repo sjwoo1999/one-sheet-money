@@ -11,6 +11,7 @@ import { InsightCard } from "../../components/InsightCard";
 import { WeekPicker } from "../../components/WeekPicker";
 import { formatRangeKOR } from "../../lib/week";
 import { useState } from "react";
+import { PrintButton } from "../../components/PrintButton";
 
 export default function WeeklyPage(){
   const [anchorDate, setAnchorDate] = useState<Date>(new Date());
@@ -23,6 +24,7 @@ export default function WeeklyPage(){
         <div className="flex gap-3">
           <CsvExportButton filename="osm-weekly.csv" rows={[ ["category","total"], ...top.map(t=>[t.c, String(t.v)]) ]} />
           <SharePresetModal />
+          <PrintButton className="no-print" />
         </div>
       </header>
       <WeekPicker date={anchorDate} onChange={setAnchorDate} rangeLabel={formatRangeKOR(anchorDate)} />
