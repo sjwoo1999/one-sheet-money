@@ -8,8 +8,12 @@ import { Card } from "../../components/Card";
 import { KpiCard } from "../../components/KpiCard";
 import { Sparkline } from "../../components/Sparkline";
 import { InsightCard } from "../../components/InsightCard";
+import { WeekPicker } from "../../components/WeekPicker";
+import { formatRangeKOR } from "../../lib/week";
+import { useState } from "react";
 
 export default function WeeklyPage(){
+  const [anchorDate, setAnchorDate] = useState<Date>(new Date());
   const exceededBy = 0; // TODO: bind real data
   const top = [{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}];
   return (
@@ -21,17 +25,11 @@ export default function WeeklyPage(){
           <SharePresetModal />
         </div>
       </header>
-      <div className="flex items-center gap-2 text-sm">
-        <label className="text-muted">주 선택</label>
-        <select className="border border-border rounded-xl px-2 py-1">
-          <option>이번 주</option>
-          <option>지난 주</option>
-        </select>
-      </div>
+      <WeekPicker date={anchorDate} onChange={setAnchorDate} rangeLabel={formatRangeKOR(anchorDate)} />
       <Card className="p-4">
         <div className="flex items-baseline justify-between">
           <div>
-            <div className="text-sm text-muted mb-1">2024-08-19 ~ 08-25</div>
+            <div className="text-sm text-muted mb-1">{formatRangeKOR(anchorDate)}</div>
             <div className="text-2xl font-bold">₩ 0</div>
           </div>
           <div className="flex items-center gap-2">
