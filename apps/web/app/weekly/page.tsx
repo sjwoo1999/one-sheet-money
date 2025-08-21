@@ -9,15 +9,31 @@ import { KpiCard } from "../../components/KpiCard";
 import { Sparkline } from "../../components/Sparkline";
 import { InsightCard } from "../../components/InsightCard";
 import { WeekPicker } from "../../components/WeekPicker";
-import { formatRangeKOR } from "../../lib/week";
-import { useState } from "react";
+import { formatRangeKOR, getWeekRange } from "../../lib/week";
+import { useEffect, useState } from "react";
 import { PrintButton } from "../../components/PrintButton";
 import { OneSheetWeekly } from "../../components/OneSheetWeekly";
+import { getWeekly } from "../../lib/api";
 
 export default function WeeklyPage(){
   const [anchorDate, setAnchorDate] = useState<Date>(new Date());
-  const exceededBy = 0; // TODO: bind real data
-  const top = [{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}];
+  const [total, setTotal] = useState(0);
+  const [top, setTop] = useState<{c:string; v:number}[]>([{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const exceededBy = 0;
+
+  useEffect(()=>{
+    const { monday, sunday } = getWeekRange(anchorDate);
+    const from = monday.toISOString();
+    const to = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate(), 23, 59, 59, 999).toISOString();
+    setLoading(true);
+    setError(null);
+    getWeekly({ from, to })
+      .then(res=>{ setTotal(res.total); setTop(res.top); })
+      .catch((e)=> setError(e instanceof Error ? e.message : String(e)))
+      .finally(()=> setLoading(false));
+  },[anchorDate]);
   return (
     <section className="space-y-4">
       <header className="flex items-baseline justify-between">
@@ -33,7 +49,7 @@ export default function WeeklyPage(){
         <div className="flex items-baseline justify-between">
           <div>
             <div className="text-sm text-muted mb-1">{formatRangeKOR(anchorDate)}</div>
-            <div className="text-2xl font-bold">₩ 0</div>
+            <div className="text-2xl font-bold">₩ {total}</div>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs px-2 py-0.5 rounded-full border border-border">전주 대비 +0%</span>
@@ -41,18 +57,29 @@ export default function WeeklyPage(){
           </div>
         </div>
         <hr className="my-4 border-border" />
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <KpiCard label="합계" value="₩ 0" delta={0} />
-          <KpiCard label="카테고리 수" value={3} />
-          <KpiCard label="평균/일" value="₩ 0" />
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-3 gap-2 mb-4 animate-pulse">
+            <div className="h-12 bg-border rounded" />
+            <div className="h-12 bg-border rounded" />
+            <div className="h-12 bg-border rounded" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <KpiCard label="합계" value={`₩ ${total}`} delta={0} />
+            <KpiCard label="카테고리 수" value={top.length} />
+            <KpiCard label="평균/일" value="₩ 0" />
+          </div>
+        )}
         <div className="mb-4">
           <div className="text-sm text-muted mb-1">추이</div>
           <Sparkline data={[0, 2, 1, 3, 2, 4, 1]} width={240} height={36} />
         </div>
         <div className="text-sm text-muted mb-2">TOP 3</div>
+        {error && (
+          <div className="mb-2 text-sm text-red-600" role="alert">로딩 실패: {error}</div>
+        )}
         <div className="space-y-2">
-          {[{c:"식비",v:0},{c:"카페",v:0},{c:"배달",v:0}].length===0 ? (
+          {loading ? (
             <div className="animate-pulse space-y-2">
               <div className="h-3 w-full bg-border rounded" />
               <div className="h-3 w-10/12 bg-border rounded" />

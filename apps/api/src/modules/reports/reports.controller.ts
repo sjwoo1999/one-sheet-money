@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body } from "@nestjs/common";
+import { Controller, Get, Post, Body, UsePipes, Query } from "@nestjs/common";
 import { z } from "zod";
 import { ReportsService } from "./reports.service";
+import { ZodValidationPipe } from "../../common/zod-validation.pipe";
 
 const WeeklyGenerateDto = z.object({ week_start: z.string() });
 type WeeklyGenerateDto = z.infer<typeof WeeklyGenerateDto>;
@@ -10,13 +11,13 @@ export class ReportsController {
   constructor(private svc: ReportsService) {}
 
   @Post("/weekly:generate")
+  @UsePipes(new ZodValidationPipe(WeeklyGenerateDto))
   async generateWeekly(@Body() body: WeeklyGenerateDto) {
-    WeeklyGenerateDto.parse(body);
     return this.svc.generateWeekly(body);
   }
 
   @Get("/weekly")
-  async getWeekly() {
-    return this.svc.getWeekly();
+  async getWeekly(@Query("from") from?: string, @Query("to") to?: string) {
+    return this.svc.getWeekly({ from, to });
   }
 }

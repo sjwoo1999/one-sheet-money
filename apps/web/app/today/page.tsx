@@ -9,17 +9,33 @@ import { openDialog } from "../../lib/dialog";
 import { Toast } from "../../components/Toast";
 import { Skeleton } from "../../components/Skeleton";
 import { CategoryChips } from "../../components/CategoryChips";
+import { getTodayTotal, postExpense } from "../../lib/api";
 
 export default function TodayPage() {
   const [sum, setSum] = useState(0);
   const [loading, setLoading] = useState(true);
   const [toastOpen, setToastOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const lastAddedRef = useRef(0);
   const timerRef = useRef<number | null>(null);
 
   useEffect(()=>{
-    const t = setTimeout(()=>setLoading(false), 300);
-    return ()=> clearTimeout(t);
+    let mounted = true;
+    (async()=>{
+      try{
+        const start = new Date();
+        start.setHours(0,0,0,0);
+        const end = new Date();
+        end.setHours(23,59,59,999);
+        const { total } = await getTodayTotal({ from: start.toISOString(), to: end.toISOString() });
+        if (mounted) setSum(total);
+      }catch(e){
+        if (mounted) setErrorMsg("오늘 합계를 불러오지 못했어요");
+      }finally{
+        if (mounted) setLoading(false);
+      }
+    })();
+    return ()=>{ mounted = false; };
   },[]);
 
   function handleSaved(amount:number){
@@ -56,7 +72,7 @@ export default function TodayPage() {
         </Button>
       )}
       <dialog id="quick-add" className="rounded-2xl p-0">
-        <QuickAddSheet onSaved={handleSaved} />
+        <QuickAddSheet onSaved={handleSaved} onError={setErrorMsg} />
       </dialog>
 
       {/* Toast */}
@@ -66,11 +82,16 @@ export default function TodayPage() {
           저장됨
         </Toast>
       )}
+      {errorMsg && (
+        <Toast>
+          {errorMsg}
+        </Toast>
+      )}
     </section>
   );
 }
 
-function QuickAddSheet({ onSaved }:{ onSaved:(amount:number)=>void }) {
+function QuickAddSheet({ onSaved, onError }:{ onSaved:(amount:number)=>void; onError?:(msg:string)=>void }) {
   const [amount,setAmount]=useState<number>(0);
   const [category,setCategory]=useState("식비");
   const [noteOpen,setNoteOpen]=useState(false);
@@ -80,7 +101,15 @@ function QuickAddSheet({ onSaved }:{ onSaved:(amount:number)=>void }) {
   const recent = recentStore.list(6).length ? recentStore.list(6) : ["식비","카페","배달"];
   const all=["식비","카페","배달","교통","장보기","쇼핑"];
   useEffect(()=>{ const t = setTimeout(()=>setLoading(false), 300); return ()=> clearTimeout(t); },[]);
-  function submit(){ onSaved(amount); }
+  async function submit(){
+    onSaved(amount);
+    try{
+      await postExpense({ amount, category, note });
+    }catch(e){
+      onError && onError("저장에 실패했어요");
+      console.error(e);
+    }
+  }
   return (
     <form method="dialog" className="p-4 w-[22rem]" aria-label="지출 추가" aria-describedby="qa-desc">
       <h3 className="text-lg font-semibold mb-1">지출 추가</h3>

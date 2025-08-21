@@ -1,7 +1,8 @@
 
-import { Controller, Get, Post, Query, Body } from "@nestjs/common";
+import { Controller, Get, Post, Query, Body, UsePipes } from "@nestjs/common";
 import { z } from "zod";
 import { ExpensesService } from "./expenses.service";
+import { ZodValidationPipe } from "../../common/zod-validation.pipe";
 
 const ExpenseDto = z.object({
   amount: z.number().int().positive(),
@@ -16,8 +17,8 @@ export class ExpensesController {
   constructor(private svc: ExpensesService) {}
 
   @Post()
+  @UsePipes(new ZodValidationPipe(ExpenseDto))
   async create(@Body() body: ExpenseDto) {
-    ExpenseDto.parse(body);
     return this.svc.create(body);
   }
 
